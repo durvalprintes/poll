@@ -25,13 +25,12 @@ public class ApiKeyFilter  extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        var httpRequest = (HttpServletRequest) request;
         String requestApiKey = httpRequest.getHeader("X-API-KEY");
 
-        if (apiKey != null && apiKey.equals(requestApiKey)) {
-            User user = new User("api-user", "", Collections.emptyList());
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        if (apiKey != null && apiKey.equalsIgnoreCase(requestApiKey)) {
+            var user = new User("api", "", Collections.emptyList());
+            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(request, response);
         } else {

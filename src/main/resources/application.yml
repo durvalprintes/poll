@@ -3,15 +3,12 @@ spring:
         name: poll
     datasource:
         driverClassName: org.postgresql.Driver
-        url: jdbc:postgresql://localhost:5432/vaadinstart
-        username: vaadinstart
-        password: vaadinstart
+        url: ${POSTGRES_URL_DATABASE}
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
     jpa:
         hibernate:
             ddl-auto: update
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQLDialect
 
 api:
-    key: a01f11cf-3a5e-4505-b3ce-01a0951201aa
+    key: ${API_KEY}
