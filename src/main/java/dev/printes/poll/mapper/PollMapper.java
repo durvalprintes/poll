@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.entity.Poll;
+import dev.printes.poll.model.entity.PollSession;
 
 public class PollMapper {
 
@@ -12,13 +13,14 @@ public class PollMapper {
     public static Poll toPollEntity(PollRequestDTO dto) {
         return Poll.builder()
             .question(dto.question())
-            .closedDate(generateClosedDate(dto.getClosedDateAsLocalDateTime()))
             .build();
     }
 
-    private static LocalDateTime generateClosedDate(LocalDateTime closedDate) {
-        return closedDate != null ? closedDate : LocalDateTime.now().plusMinutes(1L);
+    public static PollSession toPollSessionEntity(Poll poll, LocalDateTime closedDate) {
+        return PollSession.builder()
+            .closedDate(closedDate)
+            .poll(poll)
+            .build();
     }
-
 
 }

@@ -19,8 +19,8 @@ public class Voting extends Audit {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "poll_id", nullable = false)
-    private Poll poll;
+    @JoinColumn(name = "poll_session_id", nullable = false)
+    private PollSession pollSession;
 
     @ManyToOne
     @JoinColumn(name = "associate_id", nullable = false)

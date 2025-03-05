@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,12 +22,7 @@ public class Poll extends Audit {
     @Column(name = "question", length = 150, nullable = false, unique = true)
     private String question;
 
-    @Column(name = "closed_date", nullable = false)
-    private LocalDateTime closedDate;
-
     @OneToMany(mappedBy = "poll")
-    private List<Voting> voting;
+    private List<PollSession> sessions;
 
-    @Transient
-    private Boolean result;
 }
