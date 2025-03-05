@@ -3,9 +3,10 @@ package dev.printes.poll.model.entity;
 import dev.printes.poll.model.enums.Options;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

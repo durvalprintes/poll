@@ -2,17 +2,23 @@ package dev.printes.poll.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "associate")
-public class Associate extends Audit {
+public class Associate extends Audit implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "associateSequence")
     @SequenceGenerator(name = "associateSequence", sequenceName = "sq_associate", allocationSize = 1)
@@ -26,4 +32,19 @@ public class Associate extends Audit {
 
     @Column(name = "key", length = 36, nullable = false, unique = true)
     private UUID apiKey;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
 }

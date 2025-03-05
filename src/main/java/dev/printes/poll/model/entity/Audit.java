@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -22,7 +25,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Audit {
     @Column(name = "created_date", nullable = false, updatable = false)
     @CreatedDate
-    private long createdDate;
+    private LocalDateTime createdDate;
 
     @Column(name = "created_by", nullable = false, updatable = false)
     @CreatedBy
@@ -30,7 +33,7 @@ public class Audit {
 
     @Column(name = "modified_date")
     @LastModifiedDate
-    private long modifiedDate;
+    private LocalDateTime modifiedDate;
 
     @Column(name = "modified_by")
     @LastModifiedBy
