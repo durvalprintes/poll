@@ -9,12 +9,10 @@ public class PollMapper {
 
     private PollMapper() {}
 
-    public static Poll toPollEntity(PollRequestDTO dto, String createdBy) {
+    public static Poll toPollEntity(PollRequestDTO dto) {
         return Poll.builder()
             .question(dto.question())
             .closedDate(generateClosedDate(dto.getClosedDateAsLocalDateTime()))
-            .createdDate(LocalDateTime.now())
-            .createdBy(createdBy)
             .build();
     }
 

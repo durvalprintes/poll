@@ -13,8 +13,8 @@ public class PollService {
 
     private final PollRepository pollRepository;
 
-    public Long createPoll(PollRequestDTO dto, String createdBy) {
-        return pollRepository.save(PollMapper.toPollEntity(dto, createdBy)).getId();
+    public Long createPoll(PollRequestDTO dto) {
+        return pollRepository.save(PollMapper.toPollEntity(dto)).getId();
     }
 
 }
