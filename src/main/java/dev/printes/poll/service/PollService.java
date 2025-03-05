@@ -29,7 +29,8 @@ public class PollService {
     public Long createPollSession(Long pollId, String closedDate) {
         Poll poll = pollRepository.findById(pollId)
             .orElseThrow(() -> new PollException("Pauta não encontrada"));
-            return pollSessionRepository
+        //TODO: VERIFICAR SE JA EXISTE ALGUMA SESSAO ABERTA PARA A PAUTA
+        return pollSessionRepository
             .save(PollMapper.toPollSessionEntity(poll, checkClosedDate(closedDate)))
             .getId();
     }
@@ -47,6 +48,21 @@ public class PollService {
             return parsedDate;
         }
         return LocalDateTime.now().plusMinutes(1L);
+    }
+
+    public Object registerVoting(Long pollSessionId, String vote) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'registerVoting'");
+    }
+
+    public void closePollSession(Long pollId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'closePollSession'");
+    }
+
+    public Object getPollResult(Long pollId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPollResult'");
     }
 
 }
