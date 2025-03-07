@@ -5,7 +5,10 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 @SuperBuilder
@@ -31,5 +34,24 @@ public class PollSession extends Audit {
     private List<Voting> voting;
 
     @Transient
-    private Boolean result;
+    private String result;
+
+    public void calculateResult() {
+        if (voting == null || voting.isEmpty()) {
+            this.result = null;
+            return;
+        }
+
+        var voteCount = voting.stream()
+            .collect(Collectors.groupingBy(Voting::getVote, Collectors.counting()));
+
+        var maxVotes = Collections.max(voteCount.values());
+
+        var topVotes = voteCount.entrySet().stream()
+            .filter(e -> e.getValue().equals(maxVotes))
+            .map(Map.Entry::getKey)
+            .toList();
+
+        this.result = topVotes.size() > 1 ? "EMPATE" : topVotes.get(0).getValue();
+    }
 }

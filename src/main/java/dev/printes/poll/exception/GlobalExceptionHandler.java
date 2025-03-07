@@ -45,10 +45,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(createErrorResponse(errors));
     }
 
-    @ExceptionHandler(PollException.class)
-    public final ResponseEntity<Map<String, List<String>>> handlePollExceptions(PollException ex) {
+    @ExceptionHandler(ValidationException.class)
+    public final ResponseEntity<Map<String, List<String>>> handlePollExceptions(ValidationException ex) {
         List<String> errors = Collections.singletonList(ex.getMessage());
         return ResponseEntity.badRequest().body(createErrorResponse(errors));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public final ResponseEntity<Map<String, List<String>>> handlePollExceptions(ConflictException ex) {
+        List<String> errors = Collections.singletonList(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(createErrorResponse(errors));
     }
 
     @ExceptionHandler(Exception.class)

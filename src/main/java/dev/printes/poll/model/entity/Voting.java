@@ -1,6 +1,6 @@
 package dev.printes.poll.model.entity;
 
-import dev.printes.poll.model.enums.Options;
+import dev.printes.poll.model.enums.VotingEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "voting", uniqueConstraints = @UniqueConstraint(columnNames = {"poll_id", "associate_id"}))
+@Table(name = "voting", uniqueConstraints = @UniqueConstraint(columnNames = {"poll_session_id", "associate_id"}))
 public class Voting extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "votingSequence")
@@ -27,5 +27,5 @@ public class Voting extends Audit {
     private Associate associate;
 
     @Enumerated(EnumType.STRING)
-    private Options vote;
+    private VotingEnum vote;
 }

@@ -28,8 +28,8 @@ public class PoolController {
     public ResponseEntity<Object> createPoll(@RequestBody @Valid PollRequestDTO dto) {
         var id = pollService.createPoll(dto);
         var location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}/session")
+            .fromCurrentRequestUri()
+            .replacePath("/api/v1/poll/{id}/session")
             .buildAndExpand(id)
             .toUri();
         return ResponseEntity.created(location).build();
@@ -39,31 +39,31 @@ public class PoolController {
     public ResponseEntity<Object> createPollSession(
         @PathVariable("id") Long pollId,
         @RequestParam(name = "closedDate", required = false) String closedDate) {
-        var id = pollService.createPollSession(pollId, closedDate);
+        pollService.createPollSession(pollId, closedDate);
         var location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}/voting")
-            .buildAndExpand(id)
+            .fromCurrentRequestUri()
+            .replacePath("/api/v1/poll/{id}/session/voting")
+            .buildAndExpand(pollId)
             .toUri();
         return ResponseEntity.created(location).build();
     }
 
-    @PostMapping("/session/{id}/voting")
+    @PostMapping("/{id}/session/voting")
     public ResponseEntity<Object> registerVoting(
-        @PathVariable("id") Long pollSessionId,
+        @PathVariable("id") Long pollId,
         @RequestParam(name = "vote", required = true) String vote) {
-        pollService.registerVoting(pollSessionId, vote);
+        pollService.registerVoting(pollId, vote);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/session/{id}/close")
+    @PutMapping("/{id}/session/close")
     public ResponseEntity<Object> closePollSession(
         @PathVariable("id") Long pollId) {
         pollService.closePollSession(pollId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/result")
+    @GetMapping("/{id}/session/result")
     public ResponseEntity<Object> getPollResult(
         @PathVariable("id") Long pollId) {
         var result = pollService.getPollResult(pollId);
