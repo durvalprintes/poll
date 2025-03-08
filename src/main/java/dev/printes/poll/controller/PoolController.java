@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import dev.printes.poll.model.dto.PollRequestDTO;
-import dev.printes.poll.service.PollService;
+import dev.printes.poll.service.PollFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PoolController {
 
-    private final PollService pollService;
+    private final PollFacade pollService;
 
     @PostMapping
     public ResponseEntity<Object> createPoll(@RequestBody @Valid PollRequestDTO dto) {

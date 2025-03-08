@@ -16,7 +16,7 @@ public class PollMapper {
             .build();
     }
 
-    public static PollSession toPollSessionEntity(Poll poll, LocalDateTime closedDate) {
+    public static PollSession toPollSessionEntity(LocalDateTime closedDate, Poll poll) {
         return PollSession.builder()
             .closedDate(closedDate)
             .poll(poll)
