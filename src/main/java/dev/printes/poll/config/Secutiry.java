@@ -12,7 +12,9 @@ public class Secutiry {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ApiKeyFilter apiKeyFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/v1/public/**").permitAll()
+                .anyRequest().authenticated())
             .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

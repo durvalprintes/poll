@@ -1,7 +1,6 @@
 package dev.printes.poll.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,7 +14,6 @@ import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.service.PollFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/api/v1/poll")
@@ -62,13 +60,5 @@ public class PoolController {
         pollService.closePollSession(pollId);
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/{id}/session/result")
-    public ResponseEntity<Object> getPollResult(
-        @PathVariable("id") Long pollId) {
-        var result = pollService.getPollResult(pollId);
-        return ResponseEntity.ok(result);
-    }
-
 
 }

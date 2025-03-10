@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.printes.poll.model.enums.ResultEnum;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -26,6 +28,9 @@ public class PollSession extends Audit {
     @Column(name = "closed_date", nullable = false)
     private LocalDateTime closedDate;
 
+    @Column(name = "result")
+    private String result;
+
     @ManyToOne
     @JoinColumn(name = "poll_id", nullable = false)
     private Poll poll;
@@ -33,12 +38,13 @@ public class PollSession extends Audit {
     @OneToMany(mappedBy = "pollSession")
     private List<Voting> voting;
 
-    @Transient
-    private String result;
-
     public void calculateResult() {
-        if (voting == null || voting.isEmpty()) {
-            this.result = null;
+        if (result != null) {
+            return;
+        }
+
+        if(voting == null || voting.isEmpty()) {
+            this.result = ResultEnum.NO_VOTING.name();
             return;
         }
 
@@ -52,6 +58,6 @@ public class PollSession extends Audit {
             .map(Map.Entry::getKey)
             .toList();
 
-        this.result = topVotes.size() > 1 ? "EMPATE" : topVotes.get(0).getValue();
+        this.result = topVotes.size() > 1 ? ResultEnum.TIE.name() : topVotes.get(0).name();
     }
 }

@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "poll.session.result.cron",
+    "type": "java.lang.String",
+    "description": "Cron expression to trigger a message to calculate the results of closed sessions"
+  },
+  {
+    "name": "poll.session.result.queue",
+    "type": "java.lang.String",
+    "description": "Name of the message queue for calculating the result of closed sessions"
+  }
+]}

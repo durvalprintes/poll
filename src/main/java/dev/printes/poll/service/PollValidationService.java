@@ -14,9 +14,7 @@ import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
 import dev.printes.poll.model.entity.Voting;
 import dev.printes.poll.model.enums.VotingEnum;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class PollValidationService {
 
@@ -59,19 +57,6 @@ public class PollValidationService {
 
         if (!VotingEnum.isOption(vote)) {
             throw new ValidationException("Opção para votação incorreta, opçães válidas: SIM e NAO");
-        }
-    }
-
-    public void checkResult(Long pollId, Poll poll) {
-        PollSession currentSession = null;
-        try {
-            currentSession = this.checkRequiredCurrentSession(poll);
-        } catch (Exception e) {
-            log.warn("Result Poll ID {}: {}", pollId, e.getMessage());
-        }
-
-        if (currentSession != null) {
-            throw new ConflictException("A ultima sessão de votação está em andamento para a Pauta");
         }
     }
 

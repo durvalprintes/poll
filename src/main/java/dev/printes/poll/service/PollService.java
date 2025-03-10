@@ -1,8 +1,12 @@
 package dev.printes.poll.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dev.printes.poll.exception.ValidationException;
 import dev.printes.poll.model.entity.Poll;
@@ -12,10 +16,9 @@ import dev.printes.poll.repository.PollRepository;
 import dev.printes.poll.repository.PollSessionRepository;
 import dev.printes.poll.repository.VotingRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PollService {
 
@@ -27,7 +30,7 @@ public class PollService {
         return pollRepository.save(entity);
     }
 
-    public void createOrUpdateSession(PollSession entity) {
+    public void createSession(PollSession entity) {
         pollSessionRepository.save(entity);
     }
 
@@ -54,6 +57,22 @@ public class PollService {
 
     public List<Voting> findVotingWithAssociateByPollSession(Long id) {
         return votingRepository.findVotingWithAssociateByPollSession(id);
+    }
+
+    public List<PollSession> findPollLastSessionWithoutResult() {
+        return pollSessionRepository.findPollLastSessionWithoutResult();
+    }
+
+    public Page<PollSession> findPollLastSessionWithResult(Pageable pageable) {
+        return pollSessionRepository.findPollLastSessionWithResult(pageable);
+    }
+
+    public void updateSessionResult(Long id, String result) {
+        pollSessionRepository.saveSessionResult(id, result);
+    }
+
+    public void closeSession(Long id, LocalDateTime closedDate, String byAssociate) {
+        pollSessionRepository.closeSession(id, closedDate, byAssociate);
     }
 
 }
