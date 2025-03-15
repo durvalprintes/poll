@@ -67,8 +67,8 @@ public class PollService {
         return pollSessionRepository.findPollLastSessionWithResult(pageable);
     }
 
-    public void updateSessionResult(Long id, String result) {
-        pollSessionRepository.saveSessionResult(id, result);
+    public void updateSessionResult(Long id, String result, String closedBy) {
+        pollSessionRepository.saveSessionResult(id, result, closedBy);
     }
 
     public void closeSession(Long id, LocalDateTime closedDate, String byAssociate) {

@@ -46,8 +46,8 @@ public interface PollSessionRepository extends JpaRepository<PollSession, Long> 
     Page<PollSession> findPollLastSessionWithResult(Pageable pageable);
 
     @Modifying
-    @Query("UPDATE PollSession s SET s.result = :result, s.modifiedBy = 'system', s.modifiedDate = CURRENT_TIMESTAMP WHERE s.id = :id")
-    void saveSessionResult(Long id, String result);
+    @Query("UPDATE PollSession s SET s.result = :result, s.modifiedBy = :closedBy, s.modifiedDate = CURRENT_TIMESTAMP WHERE s.id = :id")
+    void saveSessionResult(Long id, String result, String closedBy);
 
     @Modifying
     @Query("UPDATE PollSession s SET s.closedDate = :closedDate, s.modifiedBy = :associate, s.modifiedDate = CURRENT_TIMESTAMP WHERE s.id = :id")

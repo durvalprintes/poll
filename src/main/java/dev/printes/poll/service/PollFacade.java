@@ -1,8 +1,7 @@
 package dev.printes.poll.service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import dev.printes.poll.mapper.PollMapper;
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.dto.PollResultDTO;
+import dev.printes.poll.model.dto.PollMessageDTO;
 import dev.printes.poll.model.entity.Associate;
 import dev.printes.poll.model.entity.PollSession;
 import dev.printes.poll.model.entity.Voting;
@@ -68,17 +68,27 @@ public class PollFacade {
     public void closePollSession(Long pollId) {
         var poll = service.findPollWithSessions(pollId);
         var currentSession = validation.checkRequiredCurrentSession(poll);
-        service.closeSession(currentSession.getId(), LocalDateTime.now(), this.findAssociate().getEmail());
-        this.sendSessionsToCalculateResult(Collections.singletonList(currentSession.getId()));
+        String emailAssociate = this.findAssociate().getEmail();
+        service.closeSession(currentSession.getId(), LocalDateTime.now(), emailAssociate);
+        this.sendSessionToCalculateResult(currentSession.getId(), emailAssociate);
     }
 
     public Page<PollResultDTO> getPollResult(int page, int size, String sortBy, String sortDir) {
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
         var sessions = service.findPollLastSessionWithResult(pageable);
         var result = sessions.stream()
-            .map(session -> new PollResultDTO(session.getPoll().getQuestion(), this.getOptionResult(session)))
+            .map(session -> new PollResultDTO(
+                session.getPoll().getQuestion(),
+                formatDate(session.getCreatedDate()),
+                formatDate(session.getClosedDate()),
+                session.getVoting().size(),
+                this.getOptionResult(session)))
             .toList();
         return new PageImpl<>(result, pageable, result.size());
+    }
+
+    private String formatDate(LocalDateTime date) {
+        return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
     private Associate findAssociate() {
@@ -98,17 +108,17 @@ public class PollFacade {
             .map(PollSession::getId)
             .toList();
         if (sessionIds.isEmpty()) {
-            log.info("No sessions to calculate result.");
+            log.info("No session to calculate result.");
         } else {
-            this.sendSessionsToCalculateResult(sessionIds);
+            sessionIds.forEach(id -> this.sendSessionToCalculateResult(id, "system"));
         }
     }
 
-    private void sendSessionsToCalculateResult(List<Long> sessionId) {
+    private void sendSessionToCalculateResult(Long sessionId, String closedBy) {
         try {
-            var tracking = new CorrelationData();
-            log.info("[{}] Message: {}", tracking.getId(), sessionId);
-            messaging.convertAndSend(pollSessionResultQueue, sessionId, tracking);
+            var message = new PollMessageDTO(sessionId, closedBy);
+            log.info("Message: {}",  message);
+            messaging.convertAndSend(pollSessionResultQueue, message, new CorrelationData(sessionId.toString()));
         } catch (Exception e) {
             log.error("Send message error: {}", e.getMessage(), e);
         }

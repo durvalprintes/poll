@@ -21,7 +21,7 @@ public class PublicController {
         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
         @RequestParam(name = "size", required = false, defaultValue = "10") int size,
         @RequestParam(name = "sortBy", required = false, defaultValue = "id") String sortBy,
-        @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") String sortDir) {
+        @RequestParam(name = "sortDir", required = false, defaultValue = "DESC") String sortDir) {
         var result = pollService.getPollResult(page, size, sortBy, sortDir);
         return ResponseEntity.ok(result);
     }
