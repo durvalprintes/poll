@@ -33,6 +33,9 @@ public class Associate extends Audit implements UserDetails {
     @Column(name = "key", length = 36, nullable = false, unique = true)
     private UUID apiKey;
 
+    @Column(name = "cpf", length = 11, nullable = false, unique = true)
+    private String cpf;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();

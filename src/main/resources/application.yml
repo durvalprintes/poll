@@ -28,3 +28,8 @@ poll:
         result:
             cron: 0 0/1 * * * *
             queue: poll-session-result-queue
+
+api:
+    validator:
+        url: http://localhost:8081
+        token: ${API_VALIDATOR_TOKEN}

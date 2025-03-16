@@ -14,6 +14,7 @@ import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
 import dev.printes.poll.model.entity.Voting;
 import dev.printes.poll.model.enums.VotingEnum;
+import dev.printes.poll.model.enums.VotingPermissionEnum;
 
 @Service
 public class PollValidationService {
@@ -50,7 +51,10 @@ public class PollValidationService {
             .orElseThrow(() -> new ConflictException("Não existe sessão encerrada para a Pauta"));
     }
 
-    public void checkVoting(List<Voting> voting, Associate associate, String vote) {
+    public void checkVoting(List<Voting> voting, Associate associate, String vote, VotingPermissionEnum permission) {
+        if (permission.equals(VotingPermissionEnum.UNABLE_TO_VOTE))
+            throw new ValidationException("Associado não está habilitado para votar.");
+
         if (voting.stream().anyMatch(register -> register.getAssociate().getId().equals(associate.getId()))) {
             throw new ConflictException("Voto já foi registrado para esse Associado.");
         }

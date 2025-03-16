@@ -14,15 +14,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import dev.printes.poll.client.ValidatorClient;
 import dev.printes.poll.mapper.PollMapper;
+import dev.printes.poll.model.dto.PollMessageDTO;
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.dto.PollResultDTO;
-import dev.printes.poll.model.dto.PollMessageDTO;
 import dev.printes.poll.model.entity.Associate;
 import dev.printes.poll.model.entity.PollSession;
 import dev.printes.poll.model.entity.Voting;
 import dev.printes.poll.model.enums.ResultEnum;
 import dev.printes.poll.model.enums.VotingEnum;
+import dev.printes.poll.model.enums.VotingPermissionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +39,7 @@ public class PollFacade {
     private final PollService service;
     private final PollValidationService validation;
     private final RabbitTemplate messaging;
-
+    private final ValidatorClient validatorClient;
 
     public Long createPoll(PollRequestDTO dto) {
         return service.createPoll(PollMapper.toPollEntity(dto)).getId();
@@ -53,16 +55,30 @@ public class PollFacade {
         var poll = service.findPollWithSessions(pollId);
         var currentSession = validation.checkRequiredCurrentSession(poll);
 
-        Associate associate = this.findAssociate();
+        var associate = this.findAssociate();
         var voting = service.findVotingWithAssociateByPollSession(currentSession.getId());
+        var votingPermission = findVotingPermissionApi(associate);
 
-        validation.checkVoting(voting, associate, vote);
+        validation.checkVoting(voting, associate, vote, votingPermission);
 
         service.registerVoting(Voting.builder()
             .pollSession(currentSession)
             .associate(associate)
             .vote(VotingEnum.getOption(vote))
             .build());
+    }
+
+    private VotingPermissionEnum findVotingPermissionApi(Associate associate) {
+        try {
+            var response = validatorClient.validateCpf(associate.getCpf());
+            if (response == null || !response.containsKey("status")) {
+                return VotingPermissionEnum.UNABLE_TO_VOTE;
+            }
+            return VotingPermissionEnum.valueOf(response.get("status"));
+        } catch (Exception e) {
+            log.error("Error to validate Associate: {}", e.getMessage());
+            return VotingPermissionEnum.UNABLE_TO_VOTE;
+        }
     }
 
     public void closePollSession(Long pollId) {
