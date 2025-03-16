@@ -28,7 +28,7 @@ public class PollSession extends Audit {
     @Column(name = "closed_date", nullable = false)
     private LocalDateTime closedDate;
 
-    @Column(name = "result")
+    @Column(name = "result", nullable = false)
     private String result;
 
     @ManyToOne
@@ -39,7 +39,7 @@ public class PollSession extends Audit {
     private List<Voting> voting;
 
     public void calculateResult() {
-        if (result != null) {
+        if (!ResultEnum.WAITING.name().equals(result)) {
             return;
         }
 

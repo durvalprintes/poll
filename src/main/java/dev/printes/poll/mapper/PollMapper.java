@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
+import dev.printes.poll.model.enums.ResultEnum;
 
 public class PollMapper {
 
@@ -20,6 +21,7 @@ public class PollMapper {
         return PollSession.builder()
             .closedDate(closedDate)
             .poll(poll)
+            .result(ResultEnum.WAITING.name())
             .build();
     }
 

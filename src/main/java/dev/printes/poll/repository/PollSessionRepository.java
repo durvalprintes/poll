@@ -23,11 +23,11 @@ public interface PollSessionRepository extends JpaRepository<PollSession, Long> 
     @Query("""
         SELECT s FROM PollSession s
         WHERE s.closedDate < CURRENT_TIMESTAMP
-        AND s.result IS NULL
+        AND s.result = 'WAITING'
         AND s.id IN (
             SELECT MAX(ps.id) FROM PollSession ps
             WHERE ps.closedDate < CURRENT_TIMESTAMP
-            AND ps.result IS NULL
+            AND ps.result = 'WAITING'
             GROUP BY ps.poll)
         """)
     List<PollSession> findPollLastSessionWithoutResult();
@@ -36,11 +36,9 @@ public interface PollSessionRepository extends JpaRepository<PollSession, Long> 
     @Query("""
         SELECT s FROM PollSession s
         WHERE s.closedDate < CURRENT_TIMESTAMP
-        AND s.result IS NOT NULL
         AND s.id IN (
             SELECT MAX(ps.id) FROM PollSession ps
             WHERE ps.closedDate < CURRENT_TIMESTAMP
-            AND ps.result IS NOT NULL
             GROUP BY ps.poll)
         """)
     Page<PollSession> findPollLastSessionWithResult(Pageable pageable);

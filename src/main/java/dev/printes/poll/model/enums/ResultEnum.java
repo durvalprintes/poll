@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ResultEnum {
     TIE("EMPATE"),
-    NO_VOTING("SEM VOTOS");
+    NO_VOTING("SEM VOTOS"),
+    WAITING("AGUARDANDO CALCULO");
 
     private final String value;
 }

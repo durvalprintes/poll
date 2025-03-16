@@ -20,6 +20,7 @@ import dev.printes.poll.model.dto.PollMessageDTO;
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.dto.PollResultDTO;
 import dev.printes.poll.model.entity.Associate;
+import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
 import dev.printes.poll.model.entity.Voting;
 import dev.printes.poll.model.enums.ResultEnum;
@@ -98,9 +99,16 @@ public class PollFacade {
                 formatDate(session.getCreatedDate()),
                 formatDate(session.getClosedDate()),
                 session.getVoting().size(),
-                this.getOptionResult(session)))
-            .toList();
+                this.getOptionResult(session),
+                this.hasOpenSession(session.getPoll())
+                )
+            ).toList();
         return new PageImpl<>(result, pageable, result.size());
+    }
+
+    private boolean hasOpenSession(Poll poll) {
+        poll.updateCurrentSession();
+        return poll.getCurrentSession() != null;
     }
 
     private String formatDate(LocalDateTime date) {

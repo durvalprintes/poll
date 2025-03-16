@@ -5,6 +5,7 @@ public record PollResultDTO(
     String startDate,
     String closedDate,
     int totalVoting,
-    String result
+    String lastResult,
+    boolean hasOpenSession
     ) {
 }
