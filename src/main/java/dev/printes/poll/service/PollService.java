@@ -3,6 +3,7 @@ package dev.printes.poll.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,7 @@ public class PollService {
         return pollSessionRepository.findPollLastSessionWithoutResult();
     }
 
+    @CacheEvict(value = "cpf", allEntries = true)
     public Page<PollSession> findPollLastSessionWithResult(Pageable pageable) {
         return pollSessionRepository.findPollLastSessionWithResult(pageable);
     }
@@ -71,6 +73,7 @@ public class PollService {
         pollSessionRepository.saveSessionResult(id, result, closedBy);
     }
 
+    @CacheEvict(value = "cpf", allEntries = true)
     public void closeSession(Long id, LocalDateTime closedDate, String byAssociate) {
         pollSessionRepository.closeSession(id, closedDate, byAssociate);
     }
