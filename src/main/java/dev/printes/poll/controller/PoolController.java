@@ -1,6 +1,7 @@
 package dev.printes.poll.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,11 +21,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PoolController {
 
-    private final PollFacade pollService;
+    private final PollFacade pollFacade;
 
     @PostMapping
     public ResponseEntity<Object> createPoll(@RequestBody @Valid PollRequestDTO dto) {
-        var id = pollService.createPoll(dto);
+        var id = pollFacade.createPoll(dto);
         var location = ServletUriComponentsBuilder
             .fromCurrentRequestUri()
             .replacePath("/api/v1/poll/{id}/session")
@@ -37,7 +38,7 @@ public class PoolController {
     public ResponseEntity<Object> createPollSession(
         @PathVariable("id") Long pollId,
         @RequestParam(name = "closedDate", required = false) String closedDate) {
-        pollService.createPollSession(pollId, closedDate);
+        pollFacade.createPollSession(pollId, closedDate);
         var location = ServletUriComponentsBuilder
             .fromCurrentRequestUri()
             .replacePath("/api/v1/poll/{id}/session/voting")
@@ -50,15 +51,19 @@ public class PoolController {
     public ResponseEntity<Object> registerVoting(
         @PathVariable("id") Long pollId,
         @RequestParam(name = "vote", required = true) String vote) {
-        pollService.registerVoting(pollId, vote);
+        pollFacade.registerVoting(pollId, vote);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/session/close")
-    public ResponseEntity<Object> closePollSession(
-        @PathVariable("id") Long pollId) {
-        pollService.closePollSession(pollId);
+    public ResponseEntity<Object> closePollSession(@PathVariable("id") Long pollId) {
+        pollFacade.closePollSession(pollId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/session/result")
+    public ResponseEntity<Object> getPollSessionResult(@PathVariable("id") Long pollId) {
+        return ResponseEntity.ok(pollFacade.getPollSessionResult(pollId));
     }
 
 }

@@ -18,6 +18,8 @@ import dev.printes.poll.mapper.PollMapper;
 import dev.printes.poll.model.dto.PollMessageDTO;
 import dev.printes.poll.model.dto.PollRequestDTO;
 import dev.printes.poll.model.dto.PollResultDTO;
+import dev.printes.poll.model.dto.PollSesssionResultDTO;
+import dev.printes.poll.model.dto.PollVotingDTO;
 import dev.printes.poll.model.entity.Associate;
 import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
@@ -36,7 +38,7 @@ public class PollFacade {
     private String pollSessionResultQueue;
 
     private final PollService service;
-    private final PollValidationService validation;
+    private final PollValidator validator;
     private final RabbitTemplate messaging;
     private final PollClient external;
 
@@ -46,19 +48,19 @@ public class PollFacade {
 
     public void createPollSession(Long pollId, String closedDate) {
         var poll = service.findPollWithSessions(pollId);
-        validation.checkConflictCurrentSession(poll);
-        service.createSession(PollMapper.toPollSessionEntity(validation.checkClosedDate(closedDate), poll));
+        validator.checkConflictCurrentSession(poll);
+        service.createSession(PollMapper.toPollSessionEntity(validator.checkClosedDate(closedDate), poll));
     }
 
     public void registerVoting(Long pollId, String vote) {
         var poll = service.findPollWithSessions(pollId);
-        var currentSession = validation.checkRequiredCurrentSession(poll);
+        var currentSession = validator.checkRequiredCurrentSession(poll);
 
         var associate = this.findAssociate();
         var voting = service.findVotingWithAssociateByPollSession(currentSession.getId());
         var votingPermission = external.findVotingPermissionApi(associate);
 
-        validation.checkVoting(voting, associate, vote, votingPermission);
+        validator.checkVoting(voting, associate, vote, votingPermission);
 
         service.registerVoting(Voting.builder()
             .pollSession(currentSession)
@@ -69,7 +71,7 @@ public class PollFacade {
 
     public void closePollSession(Long pollId) {
         var poll = service.findPollWithSessions(pollId);
-        var currentSession = validation.checkRequiredCurrentSession(poll);
+        var currentSession = validator.checkRequiredCurrentSession(poll);
         String emailAssociate = this.findAssociate().getEmail();
         service.closeSession(currentSession.getId(), LocalDateTime.now(), emailAssociate);
         this.sendSessionToCalculateResult(currentSession.getId(), emailAssociate);
@@ -81,14 +83,38 @@ public class PollFacade {
         var result = sessions.stream()
             .map(session -> new PollResultDTO(
                 session.getPoll().getQuestion(),
-                formatDate(session.getCreatedDate()),
-                formatDate(session.getClosedDate()),
+                this.formatDate(session.getClosedDate()),
                 session.getVoting().size(),
                 this.getOptionResult(session),
                 this.hasOpenSession(session.getPoll())
                 )
             ).toList();
         return new PageImpl<>(result, pageable, result.size());
+    }
+
+    public void findSessionsToCalculateResult() {
+        var sessionIds = service.findPollLastSessionWithoutResult().stream()
+            .map(PollSession::getId)
+            .toList();
+        if (sessionIds.isEmpty()) {
+            log.info("No session to calculate result.");
+        } else {
+            sessionIds.forEach(id -> this.sendSessionToCalculateResult(id, "system"));
+        }
+    }
+
+    public PollSesssionResultDTO getPollSessionResult(Long pollId) {
+        var poll = service.findPollWithSessions(pollId);
+        var session = validator.checkRequiredLastSession(poll);
+        var votes = service.findVotingWithAssociateByPollSession(session.getId());
+        return new PollSesssionResultDTO(
+            this.formatDate(session.getCreatedDate()),
+            this.formatDate(session.getClosedDate()),
+            votes.size(),
+            this.getOptionResult(session),
+            votes.stream()
+                .map(voting -> new PollVotingDTO(voting.getAssociate().getName(), voting.getVote().getValue()))
+                .toList());
     }
 
     private boolean hasOpenSession(Poll poll) {
@@ -110,17 +136,6 @@ public class PollFacade {
             .map(VotingEnum::getValue)
             .findAny()
             .orElseGet(() -> ResultEnum.valueOf(session.getResult()).getValue());
-    }
-
-    public void findSessionsToCalculateResult() {
-        var sessionIds = service.findPollLastSessionWithoutResult().stream()
-            .map(PollSession::getId)
-            .toList();
-        if (sessionIds.isEmpty()) {
-            log.info("No session to calculate result.");
-        } else {
-            sessionIds.forEach(id -> this.sendSessionToCalculateResult(id, "system"));
-        }
     }
 
     private void sendSessionToCalculateResult(Long sessionId, String closedBy) {

@@ -17,7 +17,7 @@ import dev.printes.poll.model.enums.VotingEnum;
 import dev.printes.poll.model.enums.VotingPermissionEnum;
 
 @Service
-public class PollValidationService {
+public class PollValidator {
 
     public LocalDateTime checkClosedDate(String closedDate) {
         if (closedDate != null) {
@@ -52,8 +52,9 @@ public class PollValidationService {
     }
 
     public void checkVoting(List<Voting> voting, Associate associate, String vote, VotingPermissionEnum permission) {
-        if (permission.equals(VotingPermissionEnum.UNABLE_TO_VOTE))
+        if (permission.equals(VotingPermissionEnum.UNABLE_TO_VOTE)) {
             throw new ValidationException("Associado não está habilitado para votar.");
+        }
 
         if (voting.stream().anyMatch(register -> register.getAssociate().getId().equals(associate.getId()))) {
             throw new ConflictException("Voto já foi registrado para esse Associado.");

@@ -1,7 +1,7 @@
 package dev.printes.poll.service;
 
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import dev.printes.poll.client.ValidatorClient;
 import dev.printes.poll.model.entity.Associate;
@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class PollClient {
 
@@ -18,8 +18,8 @@ public class PollClient {
 
     @Cacheable(cacheNames = "cpf", key = "#associate.cpf")
     public VotingPermissionEnum findVotingPermissionApi(Associate associate) {
+        log.info("Validating Associate: {}", associate.getCpf());
         try {
-            log.info("Validating Associate: {}", associate.getCpf());
             var response = validatorClient.validateCpf(associate.getCpf());
             if (response == null || !response.containsKey("status")) {
                 return VotingPermissionEnum.UNABLE_TO_VOTE;
