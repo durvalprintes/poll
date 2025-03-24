@@ -1,14 +1,18 @@
 package dev.printes.poll.service;
 
+import java.lang.reflect.RecordComponent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import dev.printes.poll.exception.ConflictException;
 import dev.printes.poll.exception.ValidationException;
+import dev.printes.poll.model.dto.AssociateDTO;
 import dev.printes.poll.model.entity.Associate;
 import dev.printes.poll.model.entity.Poll;
 import dev.printes.poll.model.entity.PollSession;
@@ -62,6 +66,26 @@ public class PollValidator {
 
         if (!VotingEnum.isOption(vote)) {
             throw new ValidationException("Opção para votação incorreta, opçães válidas: SIM e NAO");
+        }
+    }
+
+    public void checkAssociteFields(AssociateDTO dto) {
+        if (allFieldsAreNull(dto)) {
+            throw new ValidationException("Nenhum campo modificado");
+        }
+    }
+
+    private boolean allFieldsAreNull(Record source) {
+        return Arrays.stream(source.getClass().getRecordComponents())
+            .map(component  -> getFieldValue(component, source))
+            .allMatch(Objects::isNull);
+    }
+
+    private Object getFieldValue(RecordComponent component, Object source) {
+        try {
+            return component.getAccessor().invoke(source);
+        } catch (Exception e) {
+            throw new IllegalStateException("Erro ao acessar o campo: " + component.getName(), e);
         }
     }
 

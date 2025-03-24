@@ -16,7 +16,7 @@ public class PollClient {
 
     private final ValidatorClient validatorClient;
 
-    @Cacheable(cacheNames = "cpf", key = "#associate.cpf")
+    @Cacheable(cacheNames = "cpf", key = "#associate.id")
     public VotingPermissionEnum findVotingPermissionApi(Associate associate) {
         log.info("Validating Associate: {}", associate.getCpf());
         try {
